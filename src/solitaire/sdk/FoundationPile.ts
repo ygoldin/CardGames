@@ -9,9 +9,32 @@ export class FoundationPile {
         this.suit = suit;
     }
 
-    public addCard = (card: Card) => {
+    public canAddCard = (card: Card) => {
         if (card.getSuit() !== this.suit) {
-            throw new Error(`Only ${getSuitString(this.suit)} cards allowed`);
+            return false;
+        }
+
+        if (this.cards.length === 0) {
+            // Can add ace to start the pile
+            return card.getValue() === 1;
+        } else {
+            // Can only add next value card if the pile exists
+            const curValue = this.cards[this.cards.length - 1].getValue();
+            return card.getValue() === curValue + 1;
+        }
+    };
+
+    public addCard = (card: Card) => {
+        if (!this.canAddCard(card)) {
+            const latestCard =
+                this.cards.length === 0
+                    ? undefined
+                    : this.cards[this.cards.length - 1].toString();
+            throw new Error(
+                `Cannot add ${card.toString()} to ${getSuitString(
+                    this.suit
+                )} foundation with latest card ${latestCard}`
+            );
         }
         this.cards.push(card);
     };

@@ -82,4 +82,6 @@ export class TableauPile {
     public getNumCards = () => this.cards.length;
 
     public getNumVisibleCards = () => this.numVisible;
+
+    public getCards = () => this.cards as Readonly<Card[]>;
 }
