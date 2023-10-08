@@ -1,4 +1,5 @@
-import { Card, CardSuit } from './Card';
+import { Card } from './Card';
+import { CardSuit } from './CardSuit';
 
 export class Deck {
     private cards: Card[];
@@ -37,16 +38,12 @@ export class Deck {
         return result;
     };
 
-    public getNextNCards = (n: number): Card[] => {
-        if (this.cards.length < n) {
-            throw new Error('Not enough cards left');
-        }
-        const results: Card[] = [];
-        for (let i = 0; i < n; i++) {
-            results.push(this.cards.pop());
+    public getNextCard = (): Card => {
+        if (this.cards.length === 0) {
+            throw new Error('No cards left');
         }
 
-        return results;
+        return this.cards.pop();
     };
 
     public addCards = (cards: Card[]): void => {

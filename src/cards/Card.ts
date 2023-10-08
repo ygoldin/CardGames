@@ -1,9 +1,4 @@
-export enum CardSuit {
-    Hearts,
-    Diamonds,
-    Spades,
-    Clubs,
-}
+import { CardSuit, getSuitString } from "./CardSuit";
 
 export enum CardColor {
     Red,
@@ -36,7 +31,7 @@ export class Card {
     public getValue = (): number => this.value;
 
     public toString = (): string => {
-        const suitString = this.getSuitStringRepresentation();
+        const suitString = getSuitString(this.suit);
         if (!suitString) {
             throw new Error('Undefined suit');
         }
@@ -50,21 +45,6 @@ export class Card {
             return 'Queen' + suitString;
         } else {
             return 'King' + suitString;
-        }
-    };
-
-    private getSuitStringRepresentation = (): string | undefined => {
-        switch (this.suit) {
-            case CardSuit.Clubs:
-                return '♣';
-            case CardSuit.Diamonds:
-                return '♦';
-            case CardSuit.Hearts:
-                return '♥';
-            case CardSuit.Spades:
-                return '♠';
-            default:
-                return undefined;
         }
     };
 }
