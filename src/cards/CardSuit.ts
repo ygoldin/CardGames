@@ -18,4 +18,4 @@ export const getSuitString = (suit: CardSuit): string | undefined => {
         default:
             return undefined;
     }
-}
+};

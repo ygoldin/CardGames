@@ -1,4 +1,4 @@
-import { Card } from "../cards";
+import { Card } from '../cards';
 
 export class TableauPile {
     private cards: Card[];
@@ -9,9 +9,9 @@ export class TableauPile {
         this.numVisible = 1;
     }
 
-    public addCards = (cards: Card[]) => {
+    public canAddCards = (cards: Card[]): boolean => {
         if (cards.length === 0) {
-            throw new Error('Cannot add 0 cards');
+            return false;
         }
 
         if (this.numVisible >= 1) {
@@ -19,23 +19,31 @@ export class TableauPile {
             const finalVisibleCard = this.cards[this.cards.length - 1];
             const firstNewCard = cards[0];
             if (!this.canBeStacked(finalVisibleCard, firstNewCard)) {
-                throw new Error('Cannot stack new cards onto this pile');
+                return false;
             }
         } else {
             // Top card must be king
             const topCard = cards[0];
             if (topCard.getValue() !== 13) {
-                throw new Error('Only kings can be stacked onto empty tableau piles');
+                return false;
             }
         }
 
         // Check that the stack is valid
         for (let i = 0; i < cards.length - 1; i++) {
             const topCard = cards[i];
-            const bottomCard = cards[i+1];
+            const bottomCard = cards[i + 1];
             if (!this.canBeStacked(topCard, bottomCard)) {
-                throw new Error('Given stack is invalid');
+                return false;
             }
+        }
+
+        return true;
+    };
+
+    public addCards = (cards: Card[]) => {
+        if (!this.canAddCards(cards)) {
+            throw new Error('Cannot add these cards');
         }
 
         for (const card of cards) {
@@ -62,9 +70,16 @@ export class TableauPile {
 
         // Reverse them so that the first card in the array is the one with the highest value
         return removedCards.reverse();
-    }
+    };
 
-    private canBeStacked(topCard: Card, bottomCard: Card): boolean {
-        return topCard.getValue() === bottomCard.getValue() + 1 && topCard.getColor() !== bottomCard.getColor();
-    }
+    private canBeStacked = (topCard: Card, bottomCard: Card): boolean => {
+        return (
+            topCard.getValue() === bottomCard.getValue() + 1 &&
+            topCard.getColor() !== bottomCard.getColor()
+        );
+    };
+
+    public getNumCards = () => this.cards.length;
+
+    public getNumVisibleCards = () => this.numVisible;
 }

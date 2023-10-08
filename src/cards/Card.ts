@@ -1,4 +1,4 @@
-import { CardSuit, getSuitString } from "./CardSuit";
+import { CardSuit, getSuitString } from './CardSuit';
 
 export enum CardColor {
     Red,

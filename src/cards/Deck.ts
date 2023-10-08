@@ -4,18 +4,16 @@ import { CardSuit } from './CardSuit';
 export class Deck {
     private cards: Card[];
 
-    constructor(addAllCards: boolean) {
+    constructor() {
         this.cards = [];
-        if (addAllCards) {
-            for (let value = 1; value <= 13; value++) {
-                for (const suit of [
-                    CardSuit.Clubs,
-                    CardSuit.Diamonds,
-                    CardSuit.Hearts,
-                    CardSuit.Spades,
-                ]) {
-                    this.cards.push(new Card(suit, value));
-                }
+        for (let value = 1; value <= 13; value++) {
+            for (const suit of [
+                CardSuit.Clubs,
+                CardSuit.Diamonds,
+                CardSuit.Hearts,
+                CardSuit.Spades,
+            ]) {
+                this.cards.push(new Card(suit, value));
             }
         }
     }
@@ -46,9 +44,5 @@ export class Deck {
         return this.cards.pop();
     };
 
-    public addCards = (cards: Card[]): void => {
-        for (const card of cards) {
-            this.cards.push(card);
-        }
-    };
+    public getNumCards = (): number => this.cards.length;
 }
