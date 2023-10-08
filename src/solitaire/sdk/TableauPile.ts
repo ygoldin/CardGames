@@ -1,4 +1,4 @@
-import { Card } from '../cards';
+import { Card } from '../../cards';
 
 export class TableauPile {
     private cards: Card[];

@@ -1,4 +1,4 @@
-import { Card, CardSuit, Deck } from '../cards';
+import { Card, CardSuit, Deck } from '../../cards';
 import { FoundationPile } from './FoundationPile';
 import { TableauPile } from './TableauPile';
 

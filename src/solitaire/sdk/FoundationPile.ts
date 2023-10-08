@@ -1,4 +1,4 @@
-import { Card, CardSuit, getSuitString } from '../cards';
+import { Card, CardSuit, getSuitString } from '../../cards';
 
 export class FoundationPile {
     private cards: Card[];
