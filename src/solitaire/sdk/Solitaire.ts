@@ -13,6 +13,7 @@ export class Solitaire {
     private waste: Card[]; // Drawn cards
     // All legal moves
     private canFlipCard: boolean; // Whether or not we can flip a card from the stock to the waste
+    private canReturnWaste: boolean; // Whether or not we can return all of the cards from the waste back to the stock
     private moveWasteToFoundation?: number; // The index of which foundation we can move the top waste card to, or undefined
     private moveWasteToTableau: number[]; // The indeces of which tableau piles we can move the top waste card to
     private foundationMovesFromTableau: FoundationMoveFromTableau[]; // Which cards can move from the tableau to a foundation
@@ -51,7 +52,8 @@ export class Solitaire {
         }
 
         this.stock = [];
-        for (let i = 0; i < deck.getNumCards(); i++) {
+        const numDeckCards = deck.getNumCards();
+        for (let i = 0; i < numDeckCards; i++) {
             this.stock.push(deck.getNextCard());
         }
 
@@ -61,6 +63,7 @@ export class Solitaire {
 
     public getLegalMoves = () => ({
         canFlipCard: this.canFlipCard,
+        canReturnWaste: this.canReturnWaste,
         moveWasteToFoundation: this.moveWasteToFoundation,
         moveWasteToTableau: this.moveWasteToTableau,
         foundationMovesFromTableau: this.foundationMovesFromTableau,
@@ -71,10 +74,18 @@ export class Solitaire {
         if (!this.canFlipCard) {
             throw new Error('Cannot flip card from stock');
         }
+        this.waste.push(this.stock.pop());
     }
 
-    private calculateLegalMoves = () => {
+    public moveWasteToFoundationPile = (foundationIndex: number): void => {
+        if (this.moveWasteToFoundation !== foundationIndex) {
+            throw new Error(`Cannot move waste card to `)
+        }
+    }
+
+    private calculateLegalMoves = (): void => {
         this.canFlipCard = false;
+        this.canReturnWaste = false;
         this.moveWasteToFoundation = undefined;
         this.moveWasteToTableau = [];
         this.foundationMovesFromTableau = [];
@@ -83,6 +94,11 @@ export class Solitaire {
         // Flip a card from the stock to the waste
         if (this.stock.length > 0) {
             this.canFlipCard = true;
+        }
+
+        // Return all of the cards from the waste to the stock
+        if (this.stock.length === 0 && this.waste.length > 0) {
+            this.canReturnWaste = true;
         }
 
         if (this.waste.length > 0) {
