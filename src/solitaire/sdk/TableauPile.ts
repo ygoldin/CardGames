@@ -5,6 +5,9 @@ export class TableauPile {
     private numVisible: number;
 
     constructor(cards: Card[]) {
+        if (cards.length === 0) {
+            throw new Error('Tableau piles need to start with at least one card');
+        }
         this.cards = cards;
         this.numVisible = 1;
     }
