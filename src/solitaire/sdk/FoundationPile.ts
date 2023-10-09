@@ -39,6 +39,14 @@ export class FoundationPile {
         this.cards.push(card);
     };
 
+    public getTopCard = (): Card | undefined => {
+        if (this.cards.length === 0) {
+            return undefined;
+        }
+
+        return this.cards[this.cards.length - 1];
+    };
+
     public removeCard = (): Card => {
         if (this.cards.length === 0) {
             throw new Error(`No cards to remove`);

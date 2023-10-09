@@ -1,4 +1,4 @@
-export type FoundationMoveFromTableau = Readonly<{
+export type FoundationTableauMove = Readonly<{
     tableauIndex: number;
     foundationIndex: number;
 }>;

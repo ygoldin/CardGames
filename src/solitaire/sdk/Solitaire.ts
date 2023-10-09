@@ -1,9 +1,6 @@
-import { Card, CardSuit, Deck } from '../../cards';
+import { Card, CardSuit, Deck, getSuitString } from '../../cards';
 import { FoundationPile } from './FoundationPile';
-import {
-    FoundationMoveFromTableau,
-    InterTableauMove,
-} from './Move';
+import { FoundationTableauMove, InterTableauMove } from './Move';
 import { TableauPile } from './TableauPile';
 
 export class Solitaire {
@@ -16,8 +13,9 @@ export class Solitaire {
     private canReturnWaste: boolean; // Whether or not we can return all of the cards from the waste back to the stock
     private moveWasteToFoundation?: number; // The index of which foundation we can move the top waste card to, or undefined
     private moveWasteToTableau: number[]; // The indeces of which tableau piles we can move the top waste card to
-    private foundationMovesFromTableau: FoundationMoveFromTableau[]; // Which cards can move from the tableau to a foundation
+    private foundationMovesFromTableau: FoundationTableauMove[]; // Which cards can move from the tableau to a foundation
     private interTableauMoves: InterTableauMove[]; // Which cards can move between tableau piles
+    private tableauMovesFromFoundation: FoundationTableauMove[]; // Which cards can move from the foundation to the tableau
 
     public static TABLEAU_SIZE = 7;
     public static FOUNDATION_ORDER = [
@@ -68,20 +66,128 @@ export class Solitaire {
         moveWasteToTableau: this.moveWasteToTableau,
         foundationMovesFromTableau: this.foundationMovesFromTableau,
         interTableauMoves: this.interTableauMoves,
+        tableauMovesFromFoundation: this.tableauMovesFromFoundation,
     });
 
     public flipCard = (): void => {
         if (!this.canFlipCard) {
             throw new Error('Cannot flip card from stock');
         }
+
         this.waste.push(this.stock.pop());
-    }
+        this.calculateLegalMoves();
+    };
+
+    public returnWaste = (): void => {
+        if (!this.canReturnWaste) {
+            throw new Error('Cannot return waste');
+        }
+
+        const wasteSize = this.waste.length;
+        for (let i = 0; i < wasteSize; i++) {
+            this.stock.push(this.waste.pop());
+        }
+        this.calculateLegalMoves();
+    };
 
     public moveWasteToFoundationPile = (foundationIndex: number): void => {
         if (this.moveWasteToFoundation !== foundationIndex) {
-            throw new Error(`Cannot move waste card to `)
+            throw new Error(
+                `Cannot move waste card to ${getSuitString(
+                    Solitaire.FOUNDATION_ORDER[foundationIndex]
+                )} foundation`
+            );
         }
-    }
+
+        const foundation = this.foundations[foundationIndex];
+        foundation.addCard(this.waste.pop());
+        this.calculateLegalMoves();
+    };
+
+    public moveWasteToTableauPile = (tableauIndex: number): void => {
+        if (!this.moveWasteToTableau.includes(tableauIndex)) {
+            throw new Error(
+                `Cannot move waste card to tableau pile ${tableauIndex}`
+            );
+        }
+
+        const tableauPile = this.tableau[tableauIndex];
+        tableauPile.addCards([this.waste.pop()]);
+        this.calculateLegalMoves();
+    };
+
+    public moveToFoundationFromTableau = (
+        tableauIndex: number,
+        foundationIndex: number
+    ): void => {
+        if (
+            !this.foundationMovesFromTableau.find(
+                (move: FoundationTableauMove) =>
+                    move.tableauIndex === tableauIndex &&
+                    move.foundationIndex === foundationIndex
+            )
+        ) {
+            throw new Error(
+                `Cannot move card from tableau pile ${tableauIndex} to foundation ${foundationIndex}`
+            );
+        }
+
+        const tableauPile = this.tableau[tableauIndex];
+        const topTableauCardList = tableauPile.removeNCards(1);
+        if (topTableauCardList.length !== 1) {
+            throw new Error('Should have only removed one card');
+        }
+
+        const foundation = this.foundations[foundationIndex];
+        foundation.addCard(topTableauCardList[0]);
+        this.calculateLegalMoves();
+    };
+
+    public moveWithinTableau = (
+        tableauPileStartIndex: number,
+        tableauPileEndIndex: number,
+        numCards: number
+    ): void => {
+        if (
+            !this.interTableauMoves.find(
+                (move: InterTableauMove) =>
+                    move.tableauPileStartIndex === tableauPileStartIndex &&
+                    move.tableauPileEndIndex === tableauPileEndIndex &&
+                    move.numCards === numCards
+            )
+        ) {
+            throw new Error(
+                `Cannot move ${numCards} cards from tableau pile ${tableauPileStartIndex} to tableau pile ${tableauPileEndIndex}`
+            );
+        }
+
+        const tableauPileStart = this.tableau[tableauPileStartIndex];
+        const tableauPileEnd = this.tableau[tableauPileEndIndex];
+        tableauPileEnd.addCards(tableauPileStart.removeNCards(numCards));
+        this.calculateLegalMoves();
+    };
+
+    public moveToTableauFromFoundation = (
+        tableauIndex: number,
+        foundationIndex: number
+    ): void => {
+        if (
+            !this.tableauMovesFromFoundation.find(
+                (move: FoundationTableauMove) =>
+                    move.tableauIndex === tableauIndex &&
+                    move.foundationIndex === foundationIndex
+            )
+        ) {
+            throw new Error(
+                `Cannot move card from foundation ${foundationIndex} to tableau pile ${tableauIndex}`
+            );
+        }
+
+        const tableauPile = this.tableau[tableauIndex];
+        const foundation = this.foundations[foundationIndex];
+        tableauPile.addCards([foundation.removeCard()]);
+        this.calculateLegalMoves();
+    };
 
     private calculateLegalMoves = (): void => {
         this.canFlipCard = false;
@@ -90,6 +196,7 @@ export class Solitaire {
         this.moveWasteToTableau = [];
         this.foundationMovesFromTableau = [];
         this.interTableauMoves = [];
+        this.tableauMovesFromFoundation = [];
 
         // Flip a card from the stock to the waste
         if (this.stock.length > 0) {
@@ -150,7 +257,7 @@ export class Solitaire {
                         lastCard
                     )
                 ) {
-                    const newMove: FoundationMoveFromTableau = {
+                    const newMove: FoundationTableauMove = {
                         foundationIndex: appropriateFoundationIndex,
                         tableauIndex,
                     };
@@ -183,6 +290,33 @@ export class Solitaire {
                                 this.interTableauMoves.push(newMove);
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        // Move cards from the foundation to the tableau
+        for (
+            let foundationIndex = 0;
+            foundationIndex < Solitaire.FOUNDATION_ORDER.length;
+            foundationIndex++
+        ) {
+            const foundation = this.foundations[foundationIndex];
+            const topCard = foundation.getTopCard();
+            if (topCard) {
+                const topCardList = [topCard];
+                for (
+                    let tableauIndex = 0;
+                    tableauIndex < Solitaire.TABLEAU_SIZE;
+                    tableauIndex++
+                ) {
+                    const tableauPile = this.tableau[tableauIndex];
+                    if (tableauPile.canAddCards(topCardList)) {
+                        const newMove: FoundationTableauMove = {
+                            foundationIndex,
+                            tableauIndex,
+                        };
+                        this.tableauMovesFromFoundation.push(newMove);
                     }
                 }
             }
