@@ -1,5 +1,5 @@
-import { Card, CardSuit } from "../../cards";
-import { TableauPile } from "./TableauPile";
+import { Card, CardSuit } from '../../cards';
+import { TableauPile } from './TableauPile';
 
 const diamonds3 = new Card(CardSuit.Diamonds, 3);
 const clubs4 = new Card(CardSuit.Clubs, 4);

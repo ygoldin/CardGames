@@ -1,5 +1,5 @@
-import { Card, CardSuit } from "../../cards";
-import { FoundationPile } from "./FoundationPile";
+import { Card, CardSuit } from '../../cards';
+import { FoundationPile } from './FoundationPile';
 
 const diamondsAce = new Card(CardSuit.Diamonds, 1);
 const clubsAce = new Card(CardSuit.Clubs, 1);
@@ -31,7 +31,7 @@ test('Proper card removed', () => {
     foundation.addCard(clubs2);
     const removedCard = foundation.removeCard();
     expect(removedCard.getValue()).toBe(2);
-})
+});
 
 test('Correct top card shown', () => {
     const foundation = new FoundationPile(CardSuit.Clubs);
