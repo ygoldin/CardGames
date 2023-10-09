@@ -19,4 +19,17 @@ test('Initial setup', () => {
         expect(cards.length).toBe(i + 1);
         expect(numVisible).toBe(1);
     }
+
+    const {
+        canFlipCard,
+        canReturnWaste,
+        moveWasteToFoundation,
+        moveWasteToTableau,
+        tableauMovesFromFoundation,
+    } = solitaire.getLegalMoves();
+    expect(canFlipCard).toBeTruthy();
+    expect(canReturnWaste).toBeFalsy();
+    expect(moveWasteToFoundation).not.toBeDefined();
+    expect(moveWasteToTableau.length).toBe(0);
+    expect(tableauMovesFromFoundation.length).toBe(0);
 });
