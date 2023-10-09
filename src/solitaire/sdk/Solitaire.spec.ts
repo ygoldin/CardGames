@@ -3,7 +3,7 @@ import { Solitaire } from './Solitaire';
 test('Initial setup', () => {
     const solitaire = new Solitaire();
     const stockSize = solitaire.getStockSize();
-    expect(stockSize).toBe(24);
+    expect(stockSize).toBe(24); // 52 cards in the deck and 1-7 cards in each tableau pile
 
     const wasteSize = solitaire.getWasteSize();
     expect(wasteSize).toBe(0);
