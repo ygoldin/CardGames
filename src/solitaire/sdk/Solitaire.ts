@@ -189,6 +189,24 @@ export class Solitaire {
         this.calculateLegalMoves();
     };
 
+    public getStockSize = (): number => this.stock.length;
+
+    public getWasteSize = (): number => this.waste.length;
+
+    public getFoundations = (): Array<Card | undefined> =>
+        this.foundations.map((foundation: FoundationPile) =>
+            foundation.getTopCard()
+        );
+
+    public getTableau = (): Readonly<(readonly [readonly Card[], number])[]> =>
+        this.tableau.map(
+            (tableauPile: TableauPile) =>
+                [
+                    tableauPile.getCards(),
+                    tableauPile.getNumVisibleCards(),
+                ] as const
+        );
+
     private calculateLegalMoves = (): void => {
         this.canFlipCard = false;
         this.canReturnWaste = false;
